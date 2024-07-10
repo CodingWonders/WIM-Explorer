@@ -142,4 +142,26 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\ManagedWimLib.2.5.3\build\net46\ManagedWimLib.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\ManagedWimLib.2.5.3\build\net46\ManagedWimLib.targets'))" />
   </Target>
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>:: Copy WIMLIB DLLs if they haven't been copied
+
+IF NOT EXIST "x64" (
+	md "x64"
+	copy /y "$(SolutionDir)packages\ManagedWimLib.2.5.3\runtimes\win-x64\native\libwim-15.dll" "x64\libwim-15.dll"
+)
+
+IF NOT EXIST "x86" (
+	md "x86"
+	copy /y "$(SolutionDir)packages\ManagedWimLib.2.5.3\runtimes\win-x86\native\libwim-15.dll" "x86\libwim-15.dll"
+)
+
+IF NOT EXIST "arm64" (
+	md "arm64"
+	copy /y "$(SolutionDir)packages\ManagedWimLib.2.5.3\runtimes\win-arm64\native\libwim-15.dll" "arm64\libwim-15.dll"
+)</PreBuildEvent>
+  </PropertyGroup>
 </Project>
