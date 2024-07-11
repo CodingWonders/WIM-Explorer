@@ -91,10 +91,14 @@
             // 
             this.treeView1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
+            this.treeView1.DrawMode = System.Windows.Forms.TreeViewDrawMode.OwnerDrawText;
             this.treeView1.Location = new System.Drawing.Point(19, 105);
             this.treeView1.Name = "treeView1";
             this.treeView1.Size = new System.Drawing.Size(269, 400);
             this.treeView1.TabIndex = 3;
+            this.treeView1.DrawNode += new System.Windows.Forms.DrawTreeNodeEventHandler(this.treeView1_DrawNode);
+            this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
+            this.treeView1.Leave += new System.EventHandler(this.treeView1_Leave);
             // 
             // listView1
             // 

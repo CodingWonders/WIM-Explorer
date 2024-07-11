@@ -33,6 +33,10 @@ namespace WIMExplorer
 
         bool dirsGathered = false;
         bool skipAdditionalScans = false;
+        bool skipAdditionalRefreshes = false;
+
+        private TreeNode lastNode;
+        private TreeNode currentSelectedNode;
 
         public void SetStatus(string statusMsg)
         {
@@ -78,6 +82,7 @@ namespace WIMExplorer
                     imageFile = openFileDialog1.FileName;
                     dirsGathered = false;
                     skipAdditionalScans = true;
+                    toolStripStatusLabel1.Visible = false;
                     listView1.Items.Clear();
                     treeView1.Nodes.Clear();
                     comboBox1.Items.Clear();
@@ -265,6 +270,10 @@ namespace WIMExplorer
             {
                 await Task.Run(() => Invoke(new Action(() => toolStripStatusLabel2.Visible = false)));
 
+                skipAdditionalRefreshes = true;
+
+                bool goBack = (listView1.FocusedItem.Text == "..");
+
                 if ((listView1.FocusedItem.Text != "..") && (listView1.FocusedItem.ImageIndex != 1)) { return; }
                 if (listView1.FocusedItem.Text == "..")
                 {
@@ -277,7 +286,8 @@ namespace WIMExplorer
                 {
                     currentPath += listView1.FocusedItem.Text + "\\";
                 }
-                listView1.Items.Clear();
+
+                await Task.Run(() => Invoke(new Action(() => listView1.Items.Clear())));
                 await ShowFiles(currentPath);
                 await Task.Run(() => Invoke(new Action(() => textBox3.Text = currentPath)));
 
@@ -294,12 +304,20 @@ namespace WIMExplorer
                     }
                 })));
                 SetStatus("Ready");
+                SelectNodeByPath("Image Root" + currentPath, goBack);
+
+                await Task.Run(() => Invoke(new Action(() => treeView1.Focus())));
+                await Task.Run(() => Invoke(new Action(() => treeView1.Refresh())));
+
+                skipAdditionalRefreshes = false;
             }
         }
 
         private async void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (skipAdditionalScans) { return; }
+
+            await Task.Run(() => Invoke(new Action(() => toolStripStatusLabel1.Visible = false)));
 
             dirsGathered = false;
             imageIndex = comboBox1.SelectedIndex + 1;
@@ -321,6 +339,7 @@ namespace WIMExplorer
             treeView1.Nodes["root"].Expand();
 
             // Display total count without ".."
+            await Task.Run(() => Invoke(new Action(() => toolStripStatusLabel1.Visible = true)));
             toolStripStatusLabel1.Text = listView1.Items.Count + " item(s)";
 
             // Hide selected info
@@ -380,6 +399,131 @@ namespace WIMExplorer
         {
             AboutForm about = new AboutForm();
             about.ShowDialog(this);
+        }
+
+        private void SelectNodeByPath(string path, bool tryToCollapse)
+        {
+            if (string.IsNullOrEmpty(path))
+                return;
+
+            string[] parts = path.Trim('\\').Split('\\');
+            TreeNodeCollection nodes = treeView1.Nodes;
+            TreeNode currentNode = null;
+
+            foreach (string part in parts)
+            {
+                bool nodeFound = false;
+
+                foreach (TreeNode node in nodes)
+                {
+                    if (node.Text.Equals(part, StringComparison.OrdinalIgnoreCase))
+                    {
+                        node.Expand();
+                        currentNode = node;
+                        nodes = node.Nodes;
+                        nodeFound = true;
+                        break;
+                    }
+                }
+
+                if (!nodeFound)
+                {
+                    // Node not found for this part of the path
+                    currentNode = null;
+                    break;
+                }
+            }
+
+            // Collapse the last extended node
+            if ((tryToCollapse) && (lastNode != null && currentNode != null && IsSubNode(currentNode, lastNode)))
+            {
+                lastNode.Collapse();
+            }
+
+            if (currentNode != null)
+            {
+                treeView1.SelectedNode = currentNode;
+                currentNode.EnsureVisible();
+                treeView1.Refresh();
+                lastNode = currentNode;
+                currentSelectedNode = currentNode;
+            }
+            else
+            {
+                MessageBox.Show($"Path '{path}' not found in the tree.");
+            }
+        }
+
+        private bool IsSubNode(TreeNode parent, TreeNode subNode)
+        {
+            if (subNode == null || parent == null)
+                return false;
+
+            TreeNode currentNode = subNode;
+            while (currentNode != null)
+            {
+                if (currentNode == parent)
+                    return true;
+                currentNode = currentNode.Parent;
+            }
+            return false;
+        }
+
+        private void treeView1_Leave(object sender, EventArgs e)
+        {
+            if (currentSelectedNode != null)
+            {
+                treeView1.SelectedNode = currentSelectedNode;
+                currentSelectedNode.EnsureVisible();
+            }
+        }
+
+        private void treeView1_DrawNode(object sender, DrawTreeNodeEventArgs e)
+        {
+            if (e.Node == currentSelectedNode && !treeView1.Focused)
+            {
+                e.Graphics.FillRectangle(SystemBrushes.Highlight, e.Bounds);
+                TextRenderer.DrawText(e.Graphics, e.Node.Text, treeView1.Font, e.Bounds, SystemColors.HighlightText, TextFormatFlags.GlyphOverhangPadding);
+            }
+            else
+            {
+                e.DrawDefault = true;
+            }
+        }
+
+        private async void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            if (treeView1.SelectedNode != null)
+            {
+                if (skipAdditionalRefreshes) { return; }
+
+                await Task.Run(() => Invoke(new Action(() => listView1.Items.Clear())));
+                await Task.Run(() => Invoke(new Action(() => toolStripStatusLabel2.Visible = false)));
+
+                currentPath = treeView1.SelectedNode.FullPath.Replace(treeView1.Nodes["root"].Text, "").Trim();
+                if (!currentPath.EndsWith("\\"))
+                    currentPath += "\\";
+
+                await ShowFiles(currentPath);
+                await Task.Run(() => Invoke(new Action(() => textBox3.Text = currentPath)));
+
+                // Display total count without ".."
+                await Task.Run(() => Invoke(new Action(() =>
+                {
+                    if (currentPath == "\\")
+                    {
+                        toolStripStatusLabel1.Text = listView1.Items.Count + " item(s)";
+                    }
+                    else
+                    {
+                        toolStripStatusLabel1.Text = (listView1.Items.Count - 1) + " item(s)";
+                    }
+                })));
+                SetStatus("Ready");
+                await Task.Run(() => Invoke(new Action(() => treeView1.SelectedNode = e.Node)));              
+                await Task.Run(() => Invoke(new Action(() => treeView1.Refresh())));
+                currentSelectedNode = e.Node;
+            }
         }
     }
 }
