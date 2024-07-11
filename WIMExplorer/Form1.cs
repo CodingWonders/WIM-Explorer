@@ -67,7 +67,7 @@ namespace WIMExplorer
             openFileDialog1.ShowDialog();
         }
 
-        private void openFileDialog1_FileOk(object sender, CancelEventArgs e)
+        private async void openFileDialog1_FileOk(object sender, CancelEventArgs e)
         {
             if (File.Exists(openFileDialog1.FileName))
             {
@@ -92,9 +92,9 @@ namespace WIMExplorer
                     {
                         comboBox1.SelectedIndex = 0;
                     }
-                    GatherFiles(imageFile, imageIndex);
+                    await GatherFiles(imageFile, imageIndex);
                     currentPath = "\\";
-                    ShowFiles(currentPath);
+                    await ShowFiles(currentPath);
                     textBox3.Text = currentPath;
                     dirsGathered = true;
                     skipAdditionalScans = false;
@@ -132,15 +132,15 @@ namespace WIMExplorer
             }
         }
 
-        private void GatherFiles(string wimFile, int wimIndex)
+        private async Task GatherFiles(string wimFile, int wimIndex)
         {
             try
             {
                 imgContents.Clear();
                 depthNodeMap.Clear();
-                Wim wimHandle = Wim.OpenWim(wimFile, OpenFlags.None);
+                Wim wimHandle = await Task.Run(() => Wim.OpenWim(wimFile, OpenFlags.None));
                 IterateDirTreeCallback callback = new IterateDirTreeCallback(DirectoryTreeCallback);
-                int result = wimHandle.IterateDirTree(wimIndex, "\\", IterateDirTreeFlags.Recursive, callback);
+                int result = await Task.Run(() => wimHandle.IterateDirTree(wimIndex, "\\", IterateDirTreeFlags.Recursive, callback));
                 if (result != 0)
                 {
                     MessageBox.Show($"Failed to iterate directory tree. Error code: {result}");
@@ -159,7 +159,7 @@ namespace WIMExplorer
             return 0;
         }
 
-        private void ShowFiles(string selectedPath)
+        private async Task ShowFiles(string selectedPath)
         {
             ulong depth = 0;
             contentsInDir.Clear();
@@ -186,7 +186,7 @@ namespace WIMExplorer
                     {
                         goBack.ToolTipText = "Go to the image root";
                     }
-                    listView1.Items.Add(goBack);
+                    await Task.Run(() => listView1.Invoke(new Action(() => listView1.Items.Add(goBack))));
                 }
 
                 foreach (DirEntry dEntry in imgContents)
@@ -196,7 +196,7 @@ namespace WIMExplorer
                         if (dEntry.FileName == "" || dEntry.Depth == 0)
                             continue;
                         if (((dEntry.Attributes & FileAttributes.Directory) == FileAttributes.Directory) && !dirsGathered)
-                            AddNodeToTreeView(dEntry);
+                            await AddNodeToTreeView(dEntry);
                         if (dEntry.Depth == 1)
                         {
                             contentsInDir.Add(dEntry);
@@ -233,19 +233,19 @@ namespace WIMExplorer
                         }
                         items.Add(lvi);
                     }
-                    listView1.Items.AddRange(items.ToArray());
+                    await Task.Run(() => listView1.Invoke(new Action(() => listView1.Items.AddRange(items.ToArray()))));
                 }
             }
         }
 
-        private void AddNodeToTreeView(DirEntry dEntry)
+        private async Task AddNodeToTreeView(DirEntry dEntry)
         {
             TreeNode newNode = new TreeNode(dEntry.FileName);
 
             if (dEntry.Depth == 1)
             {
                 // Root level directory
-                treeView1.Nodes["root"].Nodes.Add(newNode);
+                await Task.Run(() => treeView1.Invoke(new Action(() => treeView1.Nodes["root"].Nodes.Add(newNode))));
                 depthNodeMap[(int)dEntry.Depth] = newNode;
             }
             else
@@ -259,11 +259,11 @@ namespace WIMExplorer
             }
         }
 
-        private void listView1_MouseDoubleClick(object sender, MouseEventArgs e)
+        private async void listView1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             if (listView1.SelectedItems.Count == 1)
             {
-                toolStripStatusLabel2.Visible = false;
+                await Task.Run(() => Invoke(new Action(() => toolStripStatusLabel2.Visible = false)));
 
                 if ((listView1.FocusedItem.Text != "..") && (listView1.FocusedItem.ImageIndex != 1)) { return; }
                 if (listView1.FocusedItem.Text == "..")
@@ -278,24 +278,26 @@ namespace WIMExplorer
                     currentPath += listView1.FocusedItem.Text + "\\";
                 }
                 listView1.Items.Clear();
-                ShowFiles(currentPath);
-                textBox3.Text = currentPath;
+                await ShowFiles(currentPath);
+                await Task.Run(() => Invoke(new Action(() => textBox3.Text = currentPath)));
 
                 // Display total count without ".."
-                if (currentPath == "\\")
+                await Task.Run(() => Invoke(new Action(() =>
                 {
-                    toolStripStatusLabel1.Text = listView1.Items.Count + " item(s)";
-                }
-                else
-                {
-                    toolStripStatusLabel1.Text = (listView1.Items.Count - 1) + " item(s)";
-                }
-
+                    if (currentPath == "\\")
+                    {
+                        toolStripStatusLabel1.Text = listView1.Items.Count + " item(s)";
+                    }
+                    else
+                    {
+                        toolStripStatusLabel1.Text = (listView1.Items.Count - 1) + " item(s)";
+                    }
+                })));
                 SetStatus("Ready");
             }
         }
 
-        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        private async void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (skipAdditionalScans) { return; }
 
@@ -309,10 +311,10 @@ namespace WIMExplorer
             // Add root node
             treeView1.Nodes.Add("root", "Image Root");
 
-            GatherFiles(imageFile, imageIndex);
+            await GatherFiles(imageFile, imageIndex);
             currentPath = "\\";
             textBox3.Text = currentPath;
-            ShowFiles(currentPath);
+            await ShowFiles(currentPath);
             dirsGathered = true;
 
             // Expand root node
