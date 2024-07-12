@@ -254,6 +254,8 @@ namespace WIMExplorer
         {
             if (listView1.SelectedItems.Count == 1)
             {
+                if (listView1.FocusedItem.ImageIndex != 1) { return; }
+
                 await Task.Run(() => Invoke(new Action(() => toolStripStatusLabel2.Visible = false)));
 
                 skipAdditionalRefreshes = true;
