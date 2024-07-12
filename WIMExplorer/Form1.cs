@@ -100,14 +100,13 @@ namespace WIMExplorer
                     await GatherFiles(imageFile, imageIndex);
                     currentPath = "\\";
                     await ShowFiles(currentPath);
-                    textBox3.Text = currentPath;
+                    textBoxPath.Text = currentPath;
                     dirsGathered = true;
                     skipAdditionalScans = false;
 
                     // Expand root node
                     treeView1.Nodes["root"].Expand();
-
-                    // Display total count without ".."
+                    
                     toolStripStatusLabel1.Visible = true;
                     toolStripStatusLabel1.Text = listView1.Items.Count + " item(s)";
 
@@ -115,6 +114,8 @@ namespace WIMExplorer
                     toolStripStatusLabel2.Visible = false;
 
                     SetStatus("Ready");
+
+                    toolStrip1.Enabled = true;
                 }
             }
         }
@@ -178,22 +179,7 @@ namespace WIMExplorer
                     string fullPath = "Image" + currentPath;
                     string[] parts = fullPath.Split(new string[] { "\\" }, StringSplitOptions.None);
                     depth = (ulong)parts.Length - 1;
-
-                    // Create item so that we can go back a directory
-                    ListViewItem goBack = new ListViewItem();
-                    goBack.Text = "..";
-                    goBack.ImageIndex = 2;
-                    if (parts.Length > 3)
-                    {
-                        goBack.ToolTipText = $"Go to the parent directory ({parts[parts.Length - 3]})";
-                    }
-                    else
-                    {
-                        goBack.ToolTipText = "Go to the image root";
-                    }
-                    await Task.Run(() => listView1.Invoke(new Action(() => listView1.Items.Add(goBack))));
                 }
-
                 foreach (DirEntry dEntry in imgContents)
                 {
                     if (selectedPath == "\\")
@@ -272,44 +258,22 @@ namespace WIMExplorer
 
                 skipAdditionalRefreshes = true;
 
-                bool goBack = (listView1.FocusedItem.Text == "..");
-
-                if ((listView1.FocusedItem.Text != "..") && (listView1.FocusedItem.ImageIndex != 1)) { return; }
-                if (listView1.FocusedItem.Text == "..")
-                {
-                    string fullPath = currentPath.TrimEnd("\\".ToCharArray());
-                    List<string> parts = fullPath.Split(new string[] { "\\" }, StringSplitOptions.None).ToList();
-                    parts[parts.Count - 1] = "";
-                    currentPath = string.Join("\\", parts);
-                }
-                else
-                {
-                    currentPath += listView1.FocusedItem.Text + "\\";
-                }
+                currentPath += listView1.FocusedItem.Text + "\\";
 
                 await Task.Run(() => Invoke(new Action(() => listView1.Items.Clear())));
                 await ShowFiles(currentPath);
-                await Task.Run(() => Invoke(new Action(() => textBox3.Text = currentPath)));
+                await Task.Run(() => Invoke(new Action(() => textBoxPath.Text = currentPath)));
 
-                // Display total count without ".."
-                await Task.Run(() => Invoke(new Action(() =>
-                {
-                    if (currentPath == "\\")
-                    {
-                        toolStripStatusLabel1.Text = listView1.Items.Count + " item(s)";
-                    }
-                    else
-                    {
-                        toolStripStatusLabel1.Text = (listView1.Items.Count - 1) + " item(s)";
-                    }
-                })));
+                await Task.Run(() => Invoke(new Action(() => toolStripStatusLabel1.Text = listView1.Items.Count + " item(s)")));
                 SetStatus("Ready");
-                SelectNodeByPath("Image Root" + currentPath, goBack);
+                SelectNodeByPath("Image Root" + currentPath, false);
 
                 await Task.Run(() => Invoke(new Action(() => treeView1.Focus())));
                 await Task.Run(() => Invoke(new Action(() => treeView1.Refresh())));
 
                 skipAdditionalRefreshes = false;
+
+                await Task.Run(() => Invoke(new Action(() => toolStripButton1.Enabled = (currentPath != "\\"))));
             }
         }
 
@@ -331,14 +295,13 @@ namespace WIMExplorer
 
             await GatherFiles(imageFile, imageIndex);
             currentPath = "\\";
-            textBox3.Text = currentPath;
+            textBoxPath.Text = currentPath;
             await ShowFiles(currentPath);
             dirsGathered = true;
 
             // Expand root node
             treeView1.Nodes["root"].Expand();
 
-            // Display total count without ".."
             await Task.Run(() => Invoke(new Action(() => toolStripStatusLabel1.Visible = true)));
             toolStripStatusLabel1.Text = listView1.Items.Count + " item(s)";
 
@@ -352,18 +315,10 @@ namespace WIMExplorer
         {
             if (listView1.SelectedItems.Count == 1)
             {
-                if (listView1.FocusedItem.Text == "..") { return; }
 
                 int itemIndex;
 
-                if (listView1.Items[0].Text == "..")
-                {
-                    itemIndex = listView1.FocusedItem.Index - 1;
-                }
-                else
-                {
-                    itemIndex = listView1.FocusedItem.Index;
-                }
+                itemIndex = listView1.FocusedItem.Index;
 
                 DirEntry selectedEntry = contentsInDir[itemIndex];
 
@@ -505,7 +460,7 @@ namespace WIMExplorer
                     currentPath += "\\";
 
                 await ShowFiles(currentPath);
-                await Task.Run(() => Invoke(new Action(() => textBox3.Text = currentPath)));
+                await Task.Run(() => Invoke(new Action(() => textBoxPath.Text = currentPath)));
 
                 // Display total count without ".."
                 await Task.Run(() => Invoke(new Action(() =>
@@ -523,6 +478,61 @@ namespace WIMExplorer
                 await Task.Run(() => Invoke(new Action(() => treeView1.SelectedNode = e.Node)));              
                 await Task.Run(() => Invoke(new Action(() => treeView1.Refresh())));
                 currentSelectedNode = e.Node;
+            }
+        }
+
+        private void Form1_SizeChanged(object sender, EventArgs e)
+        {
+            if (Visible)
+            {
+                int left = 0;
+                left = (toolStripDropDownButton1.Width + toolStripDropDownButton2.Width + toolStripButton1.Width + toolStripSeparator1.Width + toolStripLabel1.Width);
+                textBoxPath.Width = toolStrip1.Width - (left + toolStripButton2.Width) - 10;
+            }
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            int left = 0;
+            left = (toolStripDropDownButton1.Width + toolStripDropDownButton2.Width + toolStripButton1.Width + toolStripSeparator1.Width + toolStripLabel1.Width);
+            textBoxPath.Width = toolStrip1.Width - (left + toolStripButton2.Width) - 10;
+        }
+
+        private async void toolStripButton1_Click(object sender, EventArgs e)
+        {
+            await Task.Run(() => Invoke(new Action(() => toolStripStatusLabel2.Visible = false)));
+            skipAdditionalRefreshes = true;
+            string fullPath = currentPath.TrimEnd("\\".ToCharArray());
+            List<string> parts = fullPath.Split(new string[] { "\\" }, StringSplitOptions.None).ToList();
+            parts[parts.Count - 1] = "";
+            currentPath = string.Join("\\", parts);
+            await Task.Run(() => Invoke(new Action(() => listView1.Items.Clear())));
+            await ShowFiles(currentPath);
+            await Task.Run(() => Invoke(new Action(() => textBoxPath.Text = currentPath)));
+            
+            await Task.Run(() => Invoke(new Action(() => toolStripStatusLabel1.Text = listView1.Items.Count + " item(s)")));
+            SetStatus("Ready");
+            SelectNodeByPath("Image Root" + currentPath, true);
+
+            await Task.Run(() => Invoke(new Action(() => treeView1.Focus())));
+            await Task.Run(() => Invoke(new Action(() => treeView1.Refresh())));
+
+            skipAdditionalRefreshes = false;
+
+            await Task.Run(() => Invoke(new Action(() => toolStripButton1.Enabled = (currentPath != "\\"))));
+        }
+
+        private void textBoxPath_TextChanged(object sender, EventArgs e)
+        {
+            if (currentPath != "\\")
+            {
+                string[] parts = textBoxPath.Text.Split(new string[] { "\\" }, StringSplitOptions.None);
+
+                toolStripButton2.ToolTipText = $"Go to {parts[parts.Length - 2]}";
+            }
+            else
+            {
+                toolStripButton2.ToolTipText = "Go";
             }
         }
     }

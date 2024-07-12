@@ -133,6 +133,10 @@
     <Content Include="Icons\file.png" />
     <Content Include="Icons\folder.png" />
     <Content Include="Icons\up_folder.png" />
+    <None Include="Resources\toolbars\up_btn.png" />
+    <None Include="Resources\toolbars\next_btn.png" />
+    <None Include="Resources\toolbars\go_btn.png" />
+    <None Include="Resources\toolbars\back_btn.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\ManagedWimLib.2.5.3\build\net46\ManagedWimLib.targets" Condition="Exists('..\packages\ManagedWimLib.2.5.3\build\net46\ManagedWimLib.targets')" />
