@@ -3,10 +3,7 @@ The **Windows Image Explorer** is a simple file browser that lets you browse thr
 
 ![Product](./res/product.png)
 
-While it is included with DISMTools (in the future), you can also use it as a standalone program.
-
-> [!IMPORTANT]
-> This tool is in development stages, and will be included with DT as soon as it's stable and complete
+While it is included with DISMTools (after installation with a setup script), you can also use it as a standalone program.
 
 ## Usage
 
