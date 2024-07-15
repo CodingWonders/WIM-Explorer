@@ -63,7 +63,7 @@ namespace WIMExplorer
             string libPath = Path.Combine(arch, "libwim-15.dll");
             if (!File.Exists(Path.Combine(Application.StartupPath, libPath)))
                 throw new PlatformNotSupportedException("Unable to find native library [{libPath}]");
-            Wim.GlobalInit(libPath, InitFlags.None);
+            Wim.GlobalInit(Path.Combine(Application.StartupPath, libPath), InitFlags.None);
         }
 
         private void button1_Click(object sender, EventArgs e)
