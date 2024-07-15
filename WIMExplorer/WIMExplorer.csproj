@@ -133,6 +133,10 @@
     <Content Include="Icons\file.png" />
     <Content Include="Icons\folder.png" />
     <Content Include="Icons\up_folder.png" />
+    <None Include="Resources\toolbars\up_btn_dark.png" />
+    <None Include="Resources\toolbars\next_btn_dark.png" />
+    <None Include="Resources\toolbars\go_btn_dark.png" />
+    <None Include="Resources\toolbars\back_btn_dark.png" />
     <None Include="Resources\toolbars\up_btn.png" />
     <None Include="Resources\toolbars\next_btn.png" />
     <None Include="Resources\toolbars\go_btn.png" />

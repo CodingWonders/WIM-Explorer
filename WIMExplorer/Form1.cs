@@ -12,11 +12,43 @@ using System.Runtime.InteropServices;
 using System.IO;
 using System.Diagnostics;
 using Microsoft.Dism;
+using Microsoft.Win32;
 
 namespace WIMExplorer
 {
     public partial class Form1 : Form
     {
+        internal sealed class NativeMethods
+        {
+            private NativeMethods()
+            {
+            }
+
+            [DllImport("dwmapi.dll")]
+            public static extern void DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+        }
+
+        const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
+        const int WS_EX_COMPOSITED = 0x20000000;
+        const int GWL_EXSTYLE = -20;
+
+        public static void EnableDarkTitleBar(IntPtr hwnd, bool isDarkMode)
+        {
+            int attribute = isDarkMode ? 1 : 0;
+            NativeMethods.DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, ref attribute, 4);
+        }
+
+        public IntPtr GetWindowHandle(Control ctrl)
+        {
+            return ctrl.Handle;
+        }
+
+        public bool IsWindowsVersionOrGreater(int majorVersion, int minorVersion, int buildNumber)
+        {
+            var version = Environment.OSVersion.Version;
+            return version.Major > majorVersion || (version.Major == majorVersion && version.Minor > minorVersion) || (version.Major == majorVersion && version.Minor == minorVersion && version.Build >= buildNumber);
+        }
+
         public Form1()
         {
             InitializeComponent();
@@ -62,7 +94,7 @@ namespace WIMExplorer
             }
             string libPath = Path.Combine(arch, "libwim-15.dll");
             if (!File.Exists(Path.Combine(Application.StartupPath, libPath)))
-                throw new PlatformNotSupportedException("Unable to find native library [{libPath}]");
+                throw new PlatformNotSupportedException($"Unable to find native library [{libPath}]");
             Wim.GlobalInit(Path.Combine(Application.StartupPath, libPath), InitFlags.None);
         }
 
@@ -473,6 +505,64 @@ namespace WIMExplorer
                         textBox1.Text = imagePath;
                     }
                 }
+            }
+
+            // Configure appearance based on system preference
+            try
+            {
+                RegistryKey colorRk = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize");
+                int colorValue = (int)colorRk.GetValue("AppsUseLightTheme");
+                colorRk.Close();
+                EnableDarkTitleBar(Handle, (colorValue == 0));
+                Color bgColor = new Color();
+                Color fgColor = new Color();
+                switch (colorValue)
+                {
+                    case 0:
+                        bgColor = Color.FromArgb(48, 48, 48);
+                        fgColor = Color.White;
+                        break;
+                    case 1:
+                        bgColor = Color.FromArgb(239, 239, 242);
+                        fgColor = Color.Black;
+                        break;
+                }
+                // Set colors of controls
+                BackColor = bgColor;
+                ForeColor = fgColor;
+                treeView1.BackColor = bgColor;
+                treeView1.ForeColor = fgColor;
+                listView1.BackColor = bgColor;
+                listView1.ForeColor = fgColor;
+                toolStrip1.BackColor = bgColor;
+                toolStrip1.ForeColor = fgColor;
+                textBox1.BackColor = bgColor;
+                textBox1.ForeColor = fgColor;
+                comboBox1.BackColor = bgColor;
+                comboBox1.ForeColor = fgColor;
+                textBoxPath.BackColor = bgColor;
+                textBoxPath.ForeColor = fgColor;
+                // Set pictures of toolbar buttons
+                if (bgColor == Color.FromArgb(48,48,48))
+                {
+                    toolStripDropDownButton1.Image = Properties.Resources.back_btn_dark;
+                    toolStripDropDownButton2.Image = Properties.Resources.next_btn_dark;
+                    toolStripButton1.Image = Properties.Resources.up_btn_dark;
+                    toolStripButton2.Image = Properties.Resources.go_btn_dark;
+                }
+                else
+                {
+                    toolStripDropDownButton1.Image = Properties.Resources.back_btn;
+                    toolStripDropDownButton2.Image = Properties.Resources.next_btn;
+                    toolStripButton1.Image = Properties.Resources.up_btn;
+                    toolStripButton2.Image = Properties.Resources.go_btn;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                // Set light theme
+                EnableDarkTitleBar(Handle, false);
             }
         }
 
