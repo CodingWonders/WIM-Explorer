@@ -71,52 +71,11 @@ namespace WIMExplorer
             openFileDialog1.ShowDialog();
         }
 
-        private async void openFileDialog1_FileOk(object sender, CancelEventArgs e)
+        private void openFileDialog1_FileOk(object sender, CancelEventArgs e)
         {
             if (File.Exists(openFileDialog1.FileName))
             {
                 textBox1.Text = openFileDialog1.FileName;
-                if (imageFile != openFileDialog1.FileName)
-                {
-                    imageIndex = 1;
-                    imageFile = openFileDialog1.FileName;
-                    dirsGathered = false;
-                    skipAdditionalScans = true;
-                    toolStripStatusLabel1.Visible = false;
-                    listView1.Items.Clear();
-                    treeView1.Nodes.Clear();
-                    comboBox1.Items.Clear();
-
-                    SetStatus("Getting files and directories of the image. Please wait...");
-
-                    // Add root node
-                    treeView1.Nodes.Add("root", "Image Root");
-
-                    GetWimIndexes(openFileDialog1.FileName);
-                    if (comboBox1.Items.Count > 0)
-                    {
-                        comboBox1.SelectedIndex = 0;
-                    }
-                    await GatherFiles(imageFile, imageIndex);
-                    currentPath = "\\";
-                    await ShowFiles(currentPath);
-                    textBoxPath.Text = currentPath;
-                    dirsGathered = true;
-                    skipAdditionalScans = false;
-
-                    // Expand root node
-                    treeView1.Nodes["root"].Expand();
-                    
-                    toolStripStatusLabel1.Visible = true;
-                    toolStripStatusLabel1.Text = listView1.Items.Count + " item(s)";
-
-                    // Hide selected info
-                    toolStripStatusLabel2.Visible = false;
-
-                    SetStatus("Ready");
-
-                    toolStrip1.Enabled = true;
-                }
             }
         }
 
@@ -498,6 +457,23 @@ namespace WIMExplorer
             int left = 0;
             left = (toolStripDropDownButton1.Width + toolStripDropDownButton2.Width + toolStripButton1.Width + toolStripSeparator1.Width + toolStripLabel1.Width);
             textBoxPath.Width = toolStrip1.Width - (left + toolStripButton2.Width) - 10;
+
+            // Gather command-line arguments
+            string[] args = Environment.GetCommandLineArgs();
+            if (args.Length < 1) { return; }
+            foreach (string arg in args)
+            {
+                if (arg.StartsWith("/image=", StringComparison.OrdinalIgnoreCase))
+                {
+                    string imagePath;
+                    imagePath = arg.Replace("/image=", "").Trim();
+
+                    if (File.Exists(imagePath))
+                    {
+                        textBox1.Text = imagePath;
+                    }
+                }
+            }
         }
 
         private async void toolStripButton1_Click(object sender, EventArgs e)
@@ -535,6 +511,54 @@ namespace WIMExplorer
             else
             {
                 toolStripButton2.ToolTipText = "Go";
+            }
+        }
+
+        private async void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            if (File.Exists(textBox1.Text))
+            {
+                if (imageFile != textBox1.Text)
+                {
+                    imageIndex = 1;
+                    imageFile = textBox1.Text;
+                    dirsGathered = false;
+                    skipAdditionalScans = true;
+                    toolStripStatusLabel1.Visible = false;
+                    listView1.Items.Clear();
+                    treeView1.Nodes.Clear();
+                    comboBox1.Items.Clear();
+
+                    SetStatus("Getting files and directories of the image. Please wait...");
+
+                    // Add root node
+                    treeView1.Nodes.Add("root", "Image Root");
+
+                    GetWimIndexes(textBox1.Text);
+                    if (comboBox1.Items.Count > 0)
+                    {
+                        comboBox1.SelectedIndex = 0;
+                    }
+                    await GatherFiles(imageFile, imageIndex);
+                    currentPath = "\\";
+                    await ShowFiles(currentPath);
+                    textBoxPath.Text = currentPath;
+                    dirsGathered = true;
+                    skipAdditionalScans = false;
+
+                    // Expand root node
+                    treeView1.Nodes["root"].Expand();
+                    
+                    toolStripStatusLabel1.Visible = true;
+                    toolStripStatusLabel1.Text = listView1.Items.Count + " item(s)";
+
+                    // Hide selected info
+                    toolStripStatusLabel2.Visible = false;
+
+                    SetStatus("Ready");
+
+                    toolStrip1.Enabled = true;
+                }
             }
         }
     }
