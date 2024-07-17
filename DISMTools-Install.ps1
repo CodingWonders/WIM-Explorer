@@ -7,4 +7,9 @@ if (Test-Path ".\temp\wimexp.zip")
 {
 	Write-Host "Installing WIM Explorer..."
 	Expand-Archive -Path ".\temp\wimexp.zip" -Destination "$((Get-Location).Path)" -Verbose -Force
+	if ($?)
+	{
+		New-Item -Path "$((Get-Location).Path)\DT" -ItemType File -Force | Out-Null
+		Set-ItemProperty -Path "$((Get-Location).Path)\DT" -Name Attributes -Value Hidden
+	}
 }
