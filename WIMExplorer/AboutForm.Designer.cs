@@ -34,6 +34,7 @@
             this.okButton = new System.Windows.Forms.Button();
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             this.labelProductName = new System.Windows.Forms.Label();
+            this.textBox1 = new System.Windows.Forms.TextBox();
             this.tableLayoutPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.logoPictureBox)).BeginInit();
             this.SuspendLayout();
@@ -49,6 +50,7 @@
             this.tableLayoutPanel.Controls.Add(this.okButton, 1, 5);
             this.tableLayoutPanel.Controls.Add(this.linkLabel1, 1, 3);
             this.tableLayoutPanel.Controls.Add(this.labelProductName, 1, 0);
+            this.tableLayoutPanel.Controls.Add(this.textBox1, 1, 4);
             this.tableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel.Location = new System.Drawing.Point(10, 10);
             this.tableLayoutPanel.Name = "tableLayoutPanel";
@@ -135,6 +137,16 @@
             this.labelProductName.Text = "Windows Image Explorer";
             this.labelProductName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // textBox1
+            // 
+            this.textBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textBox1.Location = new System.Drawing.Point(255, 129);
+            this.textBox1.Multiline = true;
+            this.textBox1.Name = "textBox1";
+            this.textBox1.ReadOnly = true;
+            this.textBox1.Size = new System.Drawing.Size(506, 121);
+            this.textBox1.TabIndex = 27;
+            // 
             // AboutForm
             // 
             this.AcceptButton = this.okButton;
@@ -154,6 +166,7 @@
             this.Text = "About";
             this.Load += new System.EventHandler(this.AboutForm_Load);
             this.tableLayoutPanel.ResumeLayout(false);
+            this.tableLayoutPanel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.logoPictureBox)).EndInit();
             this.ResumeLayout(false);
 
@@ -168,5 +181,6 @@
         private System.Windows.Forms.Button okButton;
         private System.Windows.Forms.LinkLabel linkLabel1;
         private System.Windows.Forms.Label labelProductName;
+        private System.Windows.Forms.TextBox textBox1;
     }
 }
