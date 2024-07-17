@@ -49,13 +49,13 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.panel1 = new System.Windows.Forms.Panel();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
-            this.textBoxPath = new System.Windows.Forms.ToolStripTextBox();
             this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripButton();
             this.toolStripDropDownButton2 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
             this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
+            this.textBoxPath = new System.Windows.Forms.ToolStripTextBox();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -277,26 +277,6 @@
             this.toolStrip1.TabIndex = 5;
             this.toolStrip1.Text = "toolStrip1";
             // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 26);
-            // 
-            // toolStripLabel1
-            // 
-            this.toolStripLabel1.Name = "toolStripLabel1";
-            this.toolStripLabel1.Size = new System.Drawing.Size(52, 23);
-            this.toolStripLabel1.Text = "Address:";
-            // 
-            // textBoxPath
-            // 
-            this.textBoxPath.AutoSize = false;
-            this.textBoxPath.Name = "textBoxPath";
-            this.textBoxPath.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
-            this.textBoxPath.ReadOnly = true;
-            this.textBoxPath.Size = new System.Drawing.Size(440, 28);
-            this.textBoxPath.TextChanged += new System.EventHandler(this.textBoxPath_TextChanged);
-            // 
             // toolStripDropDownButton1
             // 
             this.toolStripDropDownButton1.Image = global::WIMExplorer.Properties.Resources.back_btn;
@@ -304,6 +284,7 @@
             this.toolStripDropDownButton1.Name = "toolStripDropDownButton1";
             this.toolStripDropDownButton1.Size = new System.Drawing.Size(52, 23);
             this.toolStripDropDownButton1.Text = "Back";
+            this.toolStripDropDownButton1.Click += new System.EventHandler(this.toolStripDropDownButton1_Click);
             // 
             // toolStripDropDownButton2
             // 
@@ -313,6 +294,7 @@
             this.toolStripDropDownButton2.Name = "toolStripDropDownButton2";
             this.toolStripDropDownButton2.Size = new System.Drawing.Size(23, 23);
             this.toolStripDropDownButton2.Text = "Next";
+            this.toolStripDropDownButton2.Click += new System.EventHandler(this.toolStripDropDownButton2_Click);
             // 
             // toolStripButton1
             // 
@@ -325,6 +307,17 @@
             this.toolStripButton1.Text = "Up";
             this.toolStripButton1.Click += new System.EventHandler(this.toolStripButton1_Click);
             // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 26);
+            // 
+            // toolStripLabel1
+            // 
+            this.toolStripLabel1.Name = "toolStripLabel1";
+            this.toolStripLabel1.Size = new System.Drawing.Size(52, 23);
+            this.toolStripLabel1.Text = "Address:";
+            // 
             // toolStripButton2
             // 
             this.toolStripButton2.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
@@ -334,6 +327,15 @@
             this.toolStripButton2.Name = "toolStripButton2";
             this.toolStripButton2.Size = new System.Drawing.Size(42, 23);
             this.toolStripButton2.Text = "Go";
+            // 
+            // textBoxPath
+            // 
+            this.textBoxPath.AutoSize = false;
+            this.textBoxPath.Name = "textBoxPath";
+            this.textBoxPath.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
+            this.textBoxPath.ReadOnly = true;
+            this.textBoxPath.Size = new System.Drawing.Size(440, 28);
+            this.textBoxPath.TextChanged += new System.EventHandler(this.textBoxPath_TextChanged);
             // 
             // Form1
             // 

@@ -70,6 +70,9 @@ namespace WIMExplorer
         private TreeNode lastNode;
         private TreeNode currentSelectedNode;
 
+        private Stack<string> backHistory = new Stack<string>();
+        private Stack<string> nextHistory = new Stack<string>();
+
         public void SetStatus(string statusMsg)
         {
             toolStripStatusLabel3.Visible = true;
@@ -247,6 +250,9 @@ namespace WIMExplorer
             {
                 if (listView1.FocusedItem.ImageIndex != 1) { return; }
 
+                backHistory.Push(currentPath);
+                nextHistory.Clear();
+
                 await Task.Run(() => Invoke(new Action(() => toolStripStatusLabel2.Visible = false)));
 
                 skipAdditionalRefreshes = true;
@@ -268,6 +274,7 @@ namespace WIMExplorer
 
                 await Task.Run(() => Invoke(new Action(() => toolStripButton1.Enabled = (currentPath != "\\"))));
             }
+            UpdateNavigationButtons();
         }
 
         private async void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -280,6 +287,9 @@ namespace WIMExplorer
             imageIndex = comboBox1.SelectedIndex + 1;
             listView1.Items.Clear();
             treeView1.Nodes.Clear();
+
+            backHistory.Clear();
+            nextHistory.Clear();
 
             SetStatus("Getting files and directories of the image. Please wait...");
 
@@ -302,6 +312,7 @@ namespace WIMExplorer
             toolStripStatusLabel2.Visible = false;
 
             SetStatus("Ready");
+            UpdateNavigationButtons();
         }
 
         private void listView1_SelectedIndexChanged(object sender, EventArgs e)
@@ -445,6 +456,9 @@ namespace WIMExplorer
             {
                 if (skipAdditionalRefreshes) { return; }
 
+                backHistory.Push(currentPath);
+                nextHistory.Clear();
+
                 await Task.Run(() => Invoke(new Action(() => listView1.Items.Clear())));
                 await Task.Run(() => Invoke(new Action(() => toolStripStatusLabel2.Visible = false)));
 
@@ -472,6 +486,7 @@ namespace WIMExplorer
                 await Task.Run(() => Invoke(new Action(() => treeView1.Refresh())));
                 currentSelectedNode = e.Node;
             }
+            UpdateNavigationButtons();
         }
 
         private void Form1_SizeChanged(object sender, EventArgs e)
@@ -569,6 +584,10 @@ namespace WIMExplorer
         private async void toolStripButton1_Click(object sender, EventArgs e)
         {
             await Task.Run(() => Invoke(new Action(() => toolStripStatusLabel2.Visible = false)));
+
+            backHistory.Push(currentPath);
+            nextHistory.Clear();
+
             skipAdditionalRefreshes = true;
             string fullPath = currentPath.TrimEnd("\\".ToCharArray());
             List<string> parts = fullPath.Split(new string[] { "\\" }, StringSplitOptions.None).ToList();
@@ -588,6 +607,8 @@ namespace WIMExplorer
             skipAdditionalRefreshes = false;
 
             await Task.Run(() => Invoke(new Action(() => toolStripButton1.Enabled = (currentPath != "\\"))));
+
+            UpdateNavigationButtons();
         }
 
         private void textBoxPath_TextChanged(object sender, EventArgs e)
@@ -618,6 +639,9 @@ namespace WIMExplorer
                     listView1.Items.Clear();
                     treeView1.Nodes.Clear();
                     comboBox1.Items.Clear();
+
+                    backHistory.Clear();
+                    nextHistory.Clear();
 
                     SetStatus("Getting files and directories of the image. Please wait...");
 
@@ -650,6 +674,64 @@ namespace WIMExplorer
                     toolStrip1.Enabled = true;
                 }
             }
+            UpdateNavigationButtons();
+        }
+
+
+        private void UpdateNavigationButtons()
+        {
+            toolStripDropDownButton1.Enabled = backHistory.Count > 0;
+            toolStripDropDownButton2.Enabled = nextHistory.Count > 0;
+        }
+
+        private async void toolStripDropDownButton1_Click(object sender, EventArgs e)
+        {
+            if (backHistory.Count > 0)
+            {
+                // Move current path to next history
+                nextHistory.Push(currentPath);
+                // Get the previous path
+                currentPath = backHistory.Pop();
+
+                skipAdditionalRefreshes = true;
+
+                await Task.Run(() => Invoke(new Action(() => listView1.Items.Clear())));
+                await ShowFiles(currentPath);
+                await Task.Run(() => Invoke(new Action(() => textBoxPath.Text = currentPath)));
+                await Task.Run(() => Invoke(new Action(() => toolStripStatusLabel1.Text = listView1.Items.Count + " item(s)")));
+                SetStatus("Ready");
+                SelectNodeByPath("Image Root" + currentPath, false);
+                await Task.Run(() => Invoke(new Action(() => treeView1.Focus())));
+                await Task.Run(() => Invoke(new Action(() => treeView1.Refresh())));
+
+                skipAdditionalRefreshes = false;
+            }
+            UpdateNavigationButtons();
+        }
+
+        private async void toolStripDropDownButton2_Click(object sender, EventArgs e)
+        {
+            if (nextHistory.Count > 0)
+            {
+                // Move current path to back history
+                backHistory.Push(currentPath);
+                // Get the next path
+                currentPath = nextHistory.Pop();
+
+                skipAdditionalRefreshes = true;
+
+                await Task.Run(() => Invoke(new Action(() => listView1.Items.Clear())));
+                await ShowFiles(currentPath);
+                await Task.Run(() => Invoke(new Action(() => textBoxPath.Text = currentPath)));
+                await Task.Run(() => Invoke(new Action(() => toolStripStatusLabel1.Text = listView1.Items.Count + " item(s)")));
+                SetStatus("Ready");
+                SelectNodeByPath("Image Root" + currentPath, false);
+                await Task.Run(() => Invoke(new Action(() => treeView1.Focus())));
+                await Task.Run(() => Invoke(new Action(() => treeView1.Refresh())));
+
+                skipAdditionalRefreshes = false;
+            }
+            UpdateNavigationButtons();
         }
     }
 }
