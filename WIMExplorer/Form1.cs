@@ -469,18 +469,7 @@ namespace WIMExplorer
                 await ShowFiles(currentPath);
                 await Task.Run(() => Invoke(new Action(() => textBoxPath.Text = currentPath)));
 
-                // Display total count without ".."
-                await Task.Run(() => Invoke(new Action(() =>
-                {
-                    if (currentPath == "\\")
-                    {
-                        toolStripStatusLabel1.Text = listView1.Items.Count + " item(s)";
-                    }
-                    else
-                    {
-                        toolStripStatusLabel1.Text = (listView1.Items.Count - 1) + " item(s)";
-                    }
-                })));
+                toolStripStatusLabel1.Text = listView1.Items.Count + " item(s)";
                 SetStatus("Ready");
                 await Task.Run(() => Invoke(new Action(() => treeView1.SelectedNode = e.Node)));              
                 await Task.Run(() => Invoke(new Action(() => treeView1.Refresh())));
