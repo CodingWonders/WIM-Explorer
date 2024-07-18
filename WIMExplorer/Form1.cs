@@ -602,6 +602,7 @@ namespace WIMExplorer
 
         private void textBoxPath_TextChanged(object sender, EventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(textBoxPath.Text)) { return; }
             if (currentPath != "\\")
             {
                 string[] parts = textBoxPath.Text.Split(new string[] { "\\" }, StringSplitOptions.None);
@@ -719,6 +720,42 @@ namespace WIMExplorer
                 await Task.Run(() => Invoke(new Action(() => treeView1.Refresh())));
 
                 skipAdditionalRefreshes = false;
+            }
+            UpdateNavigationButtons();
+        }
+
+        private async void toolStripButton2_Click(object sender, EventArgs e)
+        {
+            if ((textBoxPath.Text != "") && (textBoxPath.Text != currentPath))
+            {
+                skipAdditionalRefreshes = true;
+
+                backHistory.Push(currentPath);
+                nextHistory.Clear();
+
+                await Task.Run(() => Invoke(new Action(() => listView1.Items.Clear())));
+                await Task.Run(() => Invoke(new Action(() => toolStripStatusLabel2.Visible = false)));
+
+                currentPath = textBoxPath.Text;
+                if (!currentPath.EndsWith("\\"))
+                    currentPath += "\\";
+
+                await ShowFiles(currentPath);
+
+                await Task.Run(() => Invoke(new Action(() => toolStripStatusLabel1.Text = listView1.Items.Count + " item(s)")));
+                SetStatus("Ready");
+                SelectNodeByPath("Image Root" + currentPath, false);
+
+                await Task.Run(() => Invoke(new Action(() => treeView1.Focus())));
+                await Task.Run(() => Invoke(new Action(() => treeView1.Refresh())));
+
+                skipAdditionalRefreshes = false;
+
+                await Task.Run(() => Invoke(new Action(() => toolStripButton1.Enabled = (currentPath != "\\"))));
+            }
+            else if (string.IsNullOrWhiteSpace(textBoxPath.Text))
+            {
+                textBoxPath.Text = currentPath;
             }
             UpdateNavigationButtons();
         }

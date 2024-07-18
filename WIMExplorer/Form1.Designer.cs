@@ -327,13 +327,13 @@
             this.toolStripButton2.Name = "toolStripButton2";
             this.toolStripButton2.Size = new System.Drawing.Size(42, 23);
             this.toolStripButton2.Text = "Go";
+            this.toolStripButton2.Click += new System.EventHandler(this.toolStripButton2_Click);
             // 
             // textBoxPath
             // 
             this.textBoxPath.AutoSize = false;
             this.textBoxPath.Name = "textBoxPath";
             this.textBoxPath.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
-            this.textBoxPath.ReadOnly = true;
             this.textBoxPath.Size = new System.Drawing.Size(440, 28);
             this.textBoxPath.TextChanged += new System.EventHandler(this.textBoxPath_TextChanged);
             // 
