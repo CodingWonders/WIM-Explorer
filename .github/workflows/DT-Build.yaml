@@ -1,0 +1,35 @@
+name: Release for DISMTools
+
+on:
+  schedule:
+    - cron: '0 20 * * *'
+  workflow_dispatch:
+env:
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+
+jobs:
+  build-runspace:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.head_ref }}
+    - name: Set up MSBuild
+      uses: microsoft/Setup-MSBuild@v2
+    - name: Prepare NuGet packages
+      run: nuget restore
+    - name: Build and Pack
+      run: |
+        $solutionDir = "$((Get-Location).Path)\"
+        msbuild WIMExplorer.sln /p:Configuration=Debug /p:DeployOnBuild=true /p:SolutionDir=$solutionDir
+        New-Item -Path .\build_temp -ItemType Directory
+        cd .\WIMExplorer\bin\Debug
+        Copy-Item -Path .\* -Destination ..\..\..\build_temp -Recurse -Force -Verbose -Exclude @("*.pdb", "*.xml", "*.config")
+        Compress-Archive -Path .\* -DestinationPath ..\build\Build.zip -Force
+        cd ..
+        Remove-Item -Path .\build_temp\ -Recurse -Force
+    - name: Push build
+      uses: stefanweifel/git-auto-commit-action@v5
+      with:
+        commit_message: Windows Image Explorer Build
+      if: success()
