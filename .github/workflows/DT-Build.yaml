@@ -27,7 +27,7 @@ jobs:
         Copy-Item -Path .\* -Destination ..\..\..\build_temp -Recurse -Force -Verbose -Exclude @("*.pdb", "*.xml", "*.config")
         Compress-Archive -Path .\* -DestinationPath ..\..\..\build\Build.zip -Force
         cd ..
-        Remove-Item -Path .\build_temp\ -Recurse -Force
+        Remove-Item -Path ..\..\build_temp\ -Recurse -Force
     - name: Push build
       uses: stefanzweifel/git-auto-commit-action@v5
       with:
