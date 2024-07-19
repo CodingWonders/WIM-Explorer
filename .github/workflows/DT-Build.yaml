@@ -3,6 +3,9 @@ name: Release for DISMTools
 on:
   schedule:
     - cron: '0 20 * * *'
+  push:
+    branches:
+      - main
   workflow_dispatch:
 env:
   ACTIONS_ALLOW_UNSECURE_COMMANDS: true
