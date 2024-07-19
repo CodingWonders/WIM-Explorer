@@ -29,7 +29,7 @@ jobs:
         cd ..
         Remove-Item -Path .\build_temp\ -Recurse -Force
     - name: Push build
-      uses: stefanweifel/git-auto-commit-action@v5
+      uses: stefanzweifel/git-auto-commit-action@v5
       with:
         commit_message: Windows Image Explorer Build
       if: success()
