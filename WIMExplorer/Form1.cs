@@ -439,14 +439,14 @@ namespace WIMExplorer
 
         private void treeView1_DrawNode(object sender, DrawTreeNodeEventArgs e)
         {
-            if (e.Node == currentSelectedNode && !treeView1.Focused)
+            if (e.Node == currentSelectedNode)
             {
                 e.Graphics.FillRectangle(SystemBrushes.Highlight, e.Bounds);
-                TextRenderer.DrawText(e.Graphics, e.Node.Text, treeView1.Font, e.Bounds, SystemColors.HighlightText, TextFormatFlags.GlyphOverhangPadding);
+                TextRenderer.DrawText(e.Graphics, e.Node.Text, treeView1.Font, e.Bounds, SystemColors.HighlightText, TextFormatFlags.VerticalCenter);
             }
             else
             {
-                e.DrawDefault = true;
+                TextRenderer.DrawText(e.Graphics, e.Node.Text, treeView1.Font, e.Bounds, ForeColor, TextFormatFlags.VerticalCenter);
             }
         }
 
