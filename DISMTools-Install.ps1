@@ -1,5 +1,7 @@
 # Temporary script that installs WIM explorer to DISMTools copies
 
+[Net.ServicePointManager]::SecurityProtocol = "Tls12"
+
 Write-Host "Downloading WIM Explorer..."
 New-Item -Path ".\temp" -ItemType Directory -Force | Out-Null
 Invoke-WebRequest -Uri "https://github.com/CodingWonders/WIM-Explorer/raw/main/build/Build.zip" -OutFile ".\temp\wimexp.zip"
