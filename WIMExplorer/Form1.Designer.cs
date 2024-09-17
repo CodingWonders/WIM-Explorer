@@ -56,6 +56,19 @@
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
             this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
             this.textBoxPath = new System.Windows.Forms.ToolStripTextBox();
+            this.detailsPane = new System.Windows.Forms.Panel();
+            this.informationPanel = new System.Windows.Forms.Panel();
+            this.label11 = new System.Windows.Forms.Label();
+            this.label10 = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -63,6 +76,9 @@
             this.splitContainer1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
+            this.detailsPane.SuspendLayout();
+            this.informationPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
@@ -125,7 +141,7 @@
             this.listView1.Location = new System.Drawing.Point(0, 26);
             this.listView1.Name = "listView1";
             this.listView1.ShowItemToolTips = true;
-            this.listView1.Size = new System.Drawing.Size(949, 527);
+            this.listView1.Size = new System.Drawing.Size(644, 527);
             this.listView1.TabIndex = 4;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.SelectedIndexChanged += new System.EventHandler(this.listView1_SelectedIndexChanged);
@@ -241,6 +257,7 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.panel1);
+            this.splitContainer1.Panel2.Controls.Add(this.detailsPane);
             this.splitContainer1.Panel2MinSize = 256;
             this.splitContainer1.Size = new System.Drawing.Size(1233, 553);
             this.splitContainer1.SplitterDistance = 280;
@@ -253,7 +270,7 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(949, 553);
+            this.panel1.Size = new System.Drawing.Size(644, 553);
             this.panel1.TabIndex = 5;
             // 
             // toolStrip1
@@ -273,7 +290,7 @@
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
-            this.toolStrip1.Size = new System.Drawing.Size(949, 26);
+            this.toolStrip1.Size = new System.Drawing.Size(644, 26);
             this.toolStrip1.TabIndex = 5;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -337,11 +354,149 @@
             this.textBoxPath.Size = new System.Drawing.Size(440, 28);
             this.textBoxPath.TextChanged += new System.EventHandler(this.textBoxPath_TextChanged);
             // 
+            // detailsPane
+            // 
+            this.detailsPane.Controls.Add(this.informationPanel);
+            this.detailsPane.Controls.Add(this.pictureBox1);
+            this.detailsPane.Controls.Add(this.label5);
+            this.detailsPane.Controls.Add(this.label4);
+            this.detailsPane.Controls.Add(this.label3);
+            this.detailsPane.Dock = System.Windows.Forms.DockStyle.Right;
+            this.detailsPane.Location = new System.Drawing.Point(644, 0);
+            this.detailsPane.Name = "detailsPane";
+            this.detailsPane.Size = new System.Drawing.Size(305, 553);
+            this.detailsPane.TabIndex = 6;
+            this.detailsPane.Visible = false;
+            // 
+            // informationPanel
+            // 
+            this.informationPanel.Controls.Add(this.label11);
+            this.informationPanel.Controls.Add(this.label10);
+            this.informationPanel.Controls.Add(this.label9);
+            this.informationPanel.Controls.Add(this.label8);
+            this.informationPanel.Controls.Add(this.label7);
+            this.informationPanel.Controls.Add(this.label6);
+            this.informationPanel.Location = new System.Drawing.Point(10, 213);
+            this.informationPanel.Name = "informationPanel";
+            this.informationPanel.Size = new System.Drawing.Size(294, 212);
+            this.informationPanel.TabIndex = 3;
+            this.informationPanel.Visible = false;
+            // 
+            // label11
+            // 
+            this.label11.AutoEllipsis = true;
+            this.label11.Location = new System.Drawing.Point(97, 139);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(183, 61);
+            this.label11.TabIndex = 2;
+            this.label11.Text = "Accessed";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(10, 139);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(81, 15);
+            this.label10.TabIndex = 2;
+            this.label10.Text = "Last accessed:";
+            // 
+            // label9
+            // 
+            this.label9.AutoEllipsis = true;
+            this.label9.Location = new System.Drawing.Point(97, 74);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(183, 61);
+            this.label9.TabIndex = 2;
+            this.label9.Text = "Modified";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(10, 74);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(82, 15);
+            this.label8.TabIndex = 2;
+            this.label8.Text = "Last modified:";
+            // 
+            // label7
+            // 
+            this.label7.AutoEllipsis = true;
+            this.label7.Location = new System.Drawing.Point(97, 13);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(183, 61);
+            this.label7.TabIndex = 2;
+            this.label7.Text = "Created";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(10, 13);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(51, 15);
+            this.label6.TabIndex = 2;
+            this.label6.Text = "Created:";
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Location = new System.Drawing.Point(20, 51);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(64, 64);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox1.TabIndex = 1;
+            this.pictureBox1.TabStop = false;
+            // 
+            // label5
+            // 
+            this.label5.AutoEllipsis = true;
+            this.label5.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label5.Location = new System.Drawing.Point(17, 184);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(274, 17);
+            this.label5.TabIndex = 0;
+            this.label5.Text = "fileDesc";
+            // 
+            // label4
+            // 
+            this.label4.AutoEllipsis = true;
+            this.label4.Font = new System.Drawing.Font("Segoe UI", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.Location = new System.Drawing.Point(16, 160);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(274, 24);
+            this.label4.TabIndex = 0;
+            this.label4.Text = "fileName";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Segoe UI Semibold", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.Location = new System.Drawing.Point(16, 16);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(128, 20);
+            this.label3.TabIndex = 0;
+            this.label3.Text = "File/folder details";
+            // 
+            // checkBox1
+            // 
+            this.checkBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.checkBox1.Appearance = System.Windows.Forms.Appearance.Button;
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Enabled = false;
+            this.checkBox1.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.checkBox1.Location = new System.Drawing.Point(303, 628);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(81, 25);
+            this.checkBox1.TabIndex = 9;
+            this.checkBox1.Text = "Details Pane";
+            this.checkBox1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.checkBox1.UseVisualStyleBackColor = true;
+            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1264, 681);
+            this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.linkLabel1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.comboBox1);
@@ -367,6 +522,11 @@
             this.panel1.ResumeLayout(false);
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
+            this.detailsPane.ResumeLayout(false);
+            this.detailsPane.PerformLayout();
+            this.informationPanel.ResumeLayout(false);
+            this.informationPanel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -400,6 +560,19 @@
         private System.Windows.Forms.ToolStripTextBox textBoxPath;
         private System.Windows.Forms.ToolStripButton toolStripDropDownButton1;
         private System.Windows.Forms.ToolStripButton toolStripDropDownButton2;
+        private System.Windows.Forms.Panel detailsPane;
+        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.Panel informationPanel;
     }
 }
 

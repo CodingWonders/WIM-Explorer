@@ -26,11 +26,82 @@ namespace WIMExplorer
 
             [DllImport("dwmapi.dll")]
             public static extern void DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+
+            public static string GetFileTypeDescription(string fileExtension)
+            {
+                SHFILEINFO shfi;
+                if (IntPtr.Zero != SHGetFileInfo(fileExtension, FILE_ATTRIBUTE_NORMAL, out shfi, (uint)Marshal.SizeOf(typeof(SHFILEINFO)), SHGFI_USEFILEATTRIBUTES | SHGFI_TYPENAME))
+                {
+                    return shfi.szTypeName;
+                }
+                return null;
+            }
+
+            public static IntPtr GetFileTypeIcon(string fileExtension)
+            {
+                SHFILEINFO shfi;
+                if (IntPtr.Zero != SHGetFileInfo(fileExtension, FILE_ATTRIBUTE_NORMAL, out shfi, (uint)Marshal.SizeOf(typeof(SHFILEINFO)), SHGFI_USEFILEATTRIBUTES | SHGFI_ICON))
+                {
+                    return shfi.hIcon;
+                }
+                return IntPtr.Zero;
+            }
+
+            [DllImport("shell32.dll")]
+            private static extern IntPtr SHGetFileInfo(string pszPath, uint dwFileAttributes, out SHFILEINFO psfi, uint cbFileInfo, uint flags);
+
+            [StructLayout(LayoutKind.Sequential)]
+            private struct SHFILEINFO
+            {
+                public IntPtr hIcon;
+                public int iIcon;
+                public uint dwAttributes;
+                [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
+                public string szDisplayName;
+                [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 80)]
+                public string szTypeName;
+            }
+
         }
 
         const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
         const int WS_EX_COMPOSITED = 0x20000000;
         const int GWL_EXSTYLE = -20;
+
+        // https://stackoverflow.com/a/3780110
+
+        private const uint FILE_ATTRIBUTE_READONLY = 0x00000001;
+        private const uint FILE_ATTRIBUTE_HIDDEN = 0x00000002;
+        private const uint FILE_ATTRIBUTE_SYSTEM = 0x00000004;
+        private const uint FILE_ATTRIBUTE_DIRECTORY = 0x00000010;
+        private const uint FILE_ATTRIBUTE_ARCHIVE = 0x00000020;
+        private const uint FILE_ATTRIBUTE_DEVICE = 0x00000040;
+        private const uint FILE_ATTRIBUTE_NORMAL = 0x00000080;
+        private const uint FILE_ATTRIBUTE_TEMPORARY = 0x00000100;
+        private const uint FILE_ATTRIBUTE_SPARSE_FILE = 0x00000200;
+        private const uint FILE_ATTRIBUTE_REPARSE_POINT = 0x00000400;
+        private const uint FILE_ATTRIBUTE_COMPRESSED = 0x00000800;
+        private const uint FILE_ATTRIBUTE_OFFLINE = 0x00001000;
+        private const uint FILE_ATTRIBUTE_NOT_CONTENT_INDEXED = 0x00002000;
+        private const uint FILE_ATTRIBUTE_ENCRYPTED = 0x00004000;
+        private const uint FILE_ATTRIBUTE_VIRTUAL = 0x00010000;
+
+        private const uint SHGFI_ICON = 0x000000100;     // get icon
+        private const uint SHGFI_DISPLAYNAME = 0x000000200;     // get display name
+        private const uint SHGFI_TYPENAME = 0x000000400;     // get type name
+        private const uint SHGFI_ATTRIBUTES = 0x000000800;     // get attributes
+        private const uint SHGFI_ICONLOCATION = 0x000001000;     // get icon location
+        private const uint SHGFI_EXETYPE = 0x000002000;     // return exe type
+        private const uint SHGFI_SYSICONINDEX = 0x000004000;     // get system icon index
+        private const uint SHGFI_LINKOVERLAY = 0x000008000;     // put a link overlay on icon
+        private const uint SHGFI_SELECTED = 0x000010000;     // show icon in selected state
+        private const uint SHGFI_ATTR_SPECIFIED = 0x000020000;     // get only specified attributes
+        private const uint SHGFI_LARGEICON = 0x000000000;     // get large icon
+        private const uint SHGFI_SMALLICON = 0x000000001;     // get small icon
+        private const uint SHGFI_OPENICON = 0x000000002;     // get open icon
+        private const uint SHGFI_SHELLICONSIZE = 0x000000004;     // get shell size icon
+        private const uint SHGFI_PIDL = 0x000000008;     // pszPath is a pidl
+        private const uint SHGFI_USEFILEATTRIBUTES = 0x000000010;     // use passed dwFileAttribute
 
         public static void EnableDarkTitleBar(IntPtr hwnd, bool isDarkMode)
         {
@@ -220,6 +291,28 @@ namespace WIMExplorer
                     }
                     await Task.Run(() => listView1.Invoke(new Action(() => listView1.Items.AddRange(items.ToArray()))));
                 }
+
+                try
+                {
+                    string[] pathParts = selectedPath.Split(new string[] { "\\" }, StringSplitOptions.None);
+                    if (selectedPath != "\\")
+                    {
+                        label4.Text = pathParts[pathParts.Length - 2];
+                    }
+                    else
+                    {
+                        label4.Text = "Image root";
+                    }
+                    label5.Text = $"{listView1.Items.Count} items";
+                }
+                catch (Exception)
+                {
+                    label4.Text = selectedPath;
+                }
+
+                pictureBox1.Image = imageList1.Images[1];
+                informationPanel.Visible = false;
+
             }
         }
 
@@ -317,6 +410,8 @@ namespace WIMExplorer
 
         private void listView1_SelectedIndexChanged(object sender, EventArgs e)
         {
+            informationPanel.Visible = (listView1.SelectedItems.Count == 1);
+
             if (listView1.SelectedItems.Count == 1)
             {
 
@@ -332,25 +427,75 @@ namespace WIMExplorer
                 DateTime accessed = selectedEntry.LastAccessTime;
                 DateTime modified = selectedEntry.LastWriteTime;
 
+                label4.Text = listView1.FocusedItem.Text;
+
                 toolStripStatusLabel2.Visible = true;
+                label7.Text = $"{created.ToLongDateString()} - {created.ToShortTimeString()}";
+                label9.Text = $"{modified.ToLongDateString()} - {created.ToShortTimeString()}";
+                label11.Text = $"{accessed.ToLongDateString()} - {created.ToShortTimeString()}";
+
                 if ((selectedEntry.Attributes & FileAttributes.Directory) == FileAttributes.Directory)
                 {
+                    pictureBox1.Image = imageList1.Images[1];
+                    label5.Text = "File folder";
                     toolStripStatusLabel2.Text = $"Created at {created}, last modified at {modified}, last accessed at {accessed}";
                 }
                 else
                 {
                     fileExt = Path.GetExtension(selectedEntry.FullPath).ToUpper().Replace(".", "").Trim();
-                    toolStripStatusLabel2.Text = $"{(fileExt != "" ? fileExt + " file. " : "")}Created at {created}, last modified at {modified}, last accessed at {accessed}";
+                    string extDesc = "";
+                    IntPtr fileIcon = IntPtr.Zero;
+                    if (fileExt != "")
+                    {
+                        extDesc = NativeMethods.GetFileTypeDescription($".{fileExt}");
+                        fileIcon = NativeMethods.GetFileTypeIcon($".{fileExt}");
+                    }
+                    else
+                    {
+                        pictureBox1.Image = imageList1.Images[0];
+                    }
+                    if (fileIcon != IntPtr.Zero)
+                    {
+                        pictureBox1.Image = (Icon.FromHandle(fileIcon)).ToBitmap();
+                    }
+                    toolStripStatusLabel2.Text = $"{(extDesc != "" ? extDesc + ". " : (fileExt != "" ? fileExt + " file. " : ""))}Created at {created}, last modified at {modified}, last accessed at {accessed}";
+                    label5.Text = (extDesc != "" ? extDesc : (fileExt != "" ? fileExt + " file" : ""));
                 }
             }
             else if (listView1.SelectedItems.Count > 1)
             {
                 toolStripStatusLabel2.Visible = true;
                 toolStripStatusLabel2.Text = $"{listView1.SelectedItems.Count} items selected";
+
+                pictureBox1.Image = null;
+                
+
+                // Configure details pane
+                label4.Text = "Multiple selection";
+                label5.Text = $"{listView1.SelectedItems.Count} selected items";
             }
             else
             {
                 toolStripStatusLabel2.Visible = false;
+                pictureBox1.Image = imageList1.Images[1];
+
+                try
+                {
+                    string[] pathParts = currentPath.Split(new string[] { "\\" }, StringSplitOptions.None);
+                    if (currentPath != "\\")
+                    {
+                        label4.Text = pathParts[pathParts.Length - 2];
+                    }
+                    else
+                    {
+                        label4.Text = "Image root";
+                    }
+                    label5.Text = $"{listView1.Items.Count} items";
+                }
+                catch (Exception)
+                {
+                    label4.Text = currentPath;
+                }
             }
         }
 
@@ -662,6 +807,8 @@ namespace WIMExplorer
                     SetStatus("Ready");
 
                     toolStrip1.Enabled = true;
+
+                    checkBox1.Enabled = true;
                 }
             }
             UpdateNavigationButtons();
@@ -758,6 +905,11 @@ namespace WIMExplorer
                 textBoxPath.Text = currentPath;
             }
             UpdateNavigationButtons();
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            detailsPane.Visible = checkBox1.Checked;
         }
     }
 }
