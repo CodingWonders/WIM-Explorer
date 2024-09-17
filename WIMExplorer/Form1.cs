@@ -910,6 +910,9 @@ namespace WIMExplorer
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             detailsPane.Visible = checkBox1.Checked;
+            int left = 0;
+            left = (toolStripDropDownButton1.Width + toolStripDropDownButton2.Width + toolStripButton1.Width + toolStripSeparator1.Width + toolStripLabel1.Width);
+            textBoxPath.Width = toolStrip1.Width - (left + toolStripButton2.Width) - 10;
         }
     }
 }
