@@ -1,3 +1,4 @@
+[![](https://dcbadge.limes.pink/api/server/https://discord.gg/hJJTrMNP5p?theme=default-inverted&style=for-the-badge)](https://discord.gg/hJJTrMNP5p)
 # Windows Image Explorer
 The **Windows Image Explorer** is a simple file browser that lets you browse through the files of Windows images.
 
